@@ -8,7 +8,6 @@ import static ru.aston.homework.intensive_modul2.Application.userDao;
 
 public class CreateUser implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateUser.class);
-    // Регулярное выражение для проверки email
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
 
     @Override

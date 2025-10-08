@@ -14,7 +14,7 @@ public class UpdateUser implements UserChoiceStrategy{
     public void invoke(Scanner scanner) {
         LOGGER.info("Enter user ID to update: ");
         Long id = scanner.nextLong();
-        scanner.nextLine(); // consume newline
+        scanner.nextLine();
 
         User user = userDao.findById(id).orElse(null);
         if (user != null) {

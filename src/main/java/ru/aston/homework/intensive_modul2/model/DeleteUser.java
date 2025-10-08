@@ -18,7 +18,6 @@ public class DeleteUser implements UserChoiceStrategy{
             Long id = scanner.nextLong();
             scanner.nextLine(); // consume newline
 
-            // Проверяем существование пользователя
             if (userDao.exists(id)) {
                 userDao.delete(id);
                 LOGGER.info("User with ID {} deleted successfully!", id);

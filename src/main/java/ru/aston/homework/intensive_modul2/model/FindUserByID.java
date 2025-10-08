@@ -15,7 +15,7 @@ public class FindUserByID implements UserChoiceStrategy{
     public void invoke(Scanner scanner) {
         LOGGER.info("Enter user ID: ");
         Long id = scanner.nextLong();
-        scanner.nextLine(); // consume newline
+        scanner.nextLine();
 
         Optional<User> user = userDao.findById(id);
         if (user.isPresent()) {
