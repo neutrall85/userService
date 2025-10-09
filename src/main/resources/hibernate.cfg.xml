@@ -19,6 +19,6 @@
 
         <property name="hibernate.format_sql">true</property>
 
-        <mapping class="ru.aston.homework.intensive_modul2.model.User"/>
+        <mapping class="ru.aston.homework.intensive_modul2.entity.User"/>
     </session-factory>
 </hibernate-configuration>

@@ -1,14 +1,21 @@
-package ru.aston.homework.intensive_modul2.model;
+package ru.aston.homework.intensive_modul2.view;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.aston.homework.intensive_modul2.entity.User;
+import ru.aston.homework.intensive_modul2.service.UserService;
+
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import static ru.aston.homework.intensive_modul2.Application.USER_DAO;
 
 public class CreateUser implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateUser.class);
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
+    private final UserService userService;
+
+    public CreateUser(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void invoke(Scanner scanner) {
@@ -37,10 +44,9 @@ public class CreateUser implements UserChoiceStrategy {
         user.setEmail(email);
         user.setAge(age);
 
-        Long id = USER_DAO.create(user);
+        Long id = userService.create(user);
         LOGGER.info("\033[32mCreated user with ID: {}\033[0m", id);
     }
-
 
     private boolean isValidEmail(String email) {
         return EMAIL_PATTERN.matcher(email).matches();

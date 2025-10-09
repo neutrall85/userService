@@ -1,15 +1,20 @@
-package ru.aston.homework.intensive_modul2.model;
+package ru.aston.homework.intensive_modul2.view;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.aston.homework.intensive_modul2.entity.User;
+import ru.aston.homework.intensive_modul2.service.UserService;
 
 import java.util.Optional;
 import java.util.Scanner;
 
-import static ru.aston.homework.intensive_modul2.Application.USER_DAO;
-
 public class FindUserByID implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(FindUserByID.class);
+    private final UserService userService;
+
+    public FindUserByID(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void invoke(Scanner scanner) {
@@ -17,7 +22,7 @@ public class FindUserByID implements UserChoiceStrategy {
         Long id = scanner.nextLong();
         scanner.nextLine();
 
-        Optional<User> user = USER_DAO.findById(id);
+        Optional<User> user = userService.findById(id);
         if (user.isPresent()) {
             LOGGER.info("""
             \s

@@ -1,4 +1,4 @@
-package ru.aston.homework.intensive_modul2.model;
+package ru.aston.homework.intensive_modul2.view;
 
 public enum UserChoice {
     CREATE_USER(1),

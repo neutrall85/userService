@@ -2,7 +2,7 @@ package ru.aston.homework.intensive_modul2.dao;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import ru.aston.homework.intensive_modul2.model.User;
+import ru.aston.homework.intensive_modul2.entity.User;
 import ru.aston.homework.intensive_modul2.util.HibernateUtil;
 
 import java.util.List;
@@ -81,6 +81,4 @@ public class UserDaoImpl implements UserDao {
             throw new IllegalArgumentException("Error deleting user with id: " + id, e);
         }
     }
-
-
 }

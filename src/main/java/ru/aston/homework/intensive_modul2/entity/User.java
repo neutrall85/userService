@@ -1,4 +1,4 @@
-package ru.aston.homework.intensive_modul2.model;
+package ru.aston.homework.intensive_modul2.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

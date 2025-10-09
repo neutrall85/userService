@@ -1,19 +1,24 @@
-package ru.aston.homework.intensive_modul2.model;
+package ru.aston.homework.intensive_modul2.view;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.aston.homework.intensive_modul2.entity.User;
+import ru.aston.homework.intensive_modul2.service.UserService;
 
 import java.util.List;
 import java.util.Scanner;
 
-import static ru.aston.homework.intensive_modul2.Application.USER_DAO;
-
 public class ListAllUsers implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListAllUsers.class);
+    private final UserService userService;
+
+    public ListAllUsers(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void invoke(Scanner scanner) {
-        List<User> users = USER_DAO.findAll();
+        List<User> users = userService.findAll();
         if (!users.isEmpty()) {
             LOGGER.info("All users:");
             for (User user : users) {

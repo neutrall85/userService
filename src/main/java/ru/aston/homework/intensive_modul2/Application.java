@@ -2,15 +2,16 @@ package ru.aston.homework.intensive_modul2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aston.homework.intensive_modul2.dao.UserDao;
 import ru.aston.homework.intensive_modul2.dao.UserDaoImpl;
-import ru.aston.homework.intensive_modul2.model.CreateUser;
-import ru.aston.homework.intensive_modul2.model.DeleteUser;
-import ru.aston.homework.intensive_modul2.model.FindUserByID;
-import ru.aston.homework.intensive_modul2.model.ListAllUsers;
-import ru.aston.homework.intensive_modul2.model.UpdateUser;
-import ru.aston.homework.intensive_modul2.model.UserChoice;
-import ru.aston.homework.intensive_modul2.model.UserChoiceStrategy;
+import ru.aston.homework.intensive_modul2.service.UserService;
+import ru.aston.homework.intensive_modul2.service.UserServiceImpl;
+import ru.aston.homework.intensive_modul2.view.CreateUser;
+import ru.aston.homework.intensive_modul2.view.DeleteUser;
+import ru.aston.homework.intensive_modul2.view.FindUserByID;
+import ru.aston.homework.intensive_modul2.view.ListAllUsers;
+import ru.aston.homework.intensive_modul2.view.UpdateUser;
+import ru.aston.homework.intensive_modul2.view.UserChoice;
+import ru.aston.homework.intensive_modul2.view.UserChoiceStrategy;
 import ru.aston.homework.intensive_modul2.util.HibernateUtil;
 
 import java.util.EnumMap;
@@ -18,57 +19,65 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Application {
-    private static final Map<UserChoice, UserChoiceStrategy> CHOICE_TO_STRATEGY = new EnumMap<>(UserChoice.class);
-    public static final UserDao USER_DAO = new UserDaoImpl();
-    public static final Scanner SCANNER = new Scanner(System.in);
+    private final Map<UserChoice, UserChoiceStrategy> choiceToStrategy;
+    private final UserService userService;
+    private final Scanner scanner;
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-    static {
-        CHOICE_TO_STRATEGY.put(UserChoice.CREATE_USER, new CreateUser());
-        CHOICE_TO_STRATEGY.put(UserChoice.GET_USER_BY_ID, new FindUserByID());
-        CHOICE_TO_STRATEGY.put(UserChoice.UPDATE_USER, new UpdateUser());
-        CHOICE_TO_STRATEGY.put(UserChoice.DELETE_USER, new DeleteUser());
-        CHOICE_TO_STRATEGY.put(UserChoice.LIST_ALL_USERS, new ListAllUsers());
+    public Application(UserService userService) {
+        this.userService = userService;
+        this.scanner = new Scanner(System.in);
+        this.choiceToStrategy = new EnumMap<>(UserChoice.class);
+        initializeStrategies();
     }
 
-
     public static void main(String[] args) {
-        boolean running = true;
+        try {
+            UserService userService = new UserServiceImpl(new UserDaoImpl());
+            Application app = new Application(userService);
+            app.run();
+        } finally {
+            HibernateUtil.shutdown();
+        }
+    }
 
+    private void run() {
+        boolean running = true;
         while (running) {
             printMenu();
-            String input = SCANNER.nextLine();
-            UserChoice choice;
-
             try {
-                int inputValue = Integer.parseInt(input);
+                int choice = Integer.parseInt(scanner.nextLine());
+                UserChoice userChoice = UserChoice.fromValue(choice);
 
-                if (inputValue < 0 || inputValue > 5) {
-                    throw new IllegalArgumentException("\033[31mThe value must be between 0 and 5\033[0m");
-                }
-
-                choice = UserChoice.fromValue(inputValue);
-
-                if (choice == UserChoice.EXIT) {
+                if (userChoice == UserChoice.EXIT) {
                     running = false;
-                    LOGGER.info("\033[32mThe program is complete. Goodbye!\033[0m");
-                    break;
+                    LOGGER.info("\033[32mПрограмма завершена. До свидания!\033[0m");
+                    continue;
                 }
 
-
-                UserChoiceStrategy strategy = CHOICE_TO_STRATEGY.get(choice);
-                strategy.invoke(SCANNER);
-
+                UserChoiceStrategy strategy = choiceToStrategy.get(userChoice);
+                if (strategy != null) {
+                    strategy.invoke(scanner);
+                } else {
+                    LOGGER.warn("\033[31mНеизвестная команда\033[0m");
+                }
             } catch (NumberFormatException e) {
-                LOGGER.info("\033[31mInvalid input format. Please try again.\033[0m");
+                LOGGER.error("\033[31mОшибка формата ввода. Введите число.\033[0m");
             } catch (IllegalArgumentException e) {
-                LOGGER.info("\033[31mError: {}\033[0m", e.getMessage());
+                LOGGER.error("\033[31mОшибка: {}\033[0m", e.getMessage());
             } catch (Exception e) {
-                LOGGER.error("\033[31mAn error has occurred: {}\033[0m", e.getMessage());
+                LOGGER.error("\033[31mКритическая ошибка: {}\033[0m", e.getMessage());
             }
         }
-        SCANNER.close();
-        HibernateUtil.shutdown();
+        scanner.close();
+    }
+
+    private void initializeStrategies(){
+        choiceToStrategy.put(UserChoice.CREATE_USER, new CreateUser(userService));
+        choiceToStrategy.put(UserChoice.GET_USER_BY_ID, new FindUserByID(userService));
+        choiceToStrategy.put(UserChoice.UPDATE_USER, new UpdateUser(userService));
+        choiceToStrategy.put(UserChoice.DELETE_USER, new DeleteUser(userService));
+        choiceToStrategy.put(UserChoice.LIST_ALL_USERS, new ListAllUsers(userService));
     }
 
     private static void printMenu() {
