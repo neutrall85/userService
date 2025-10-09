@@ -20,6 +20,6 @@ public enum UserChoice {
                 return choice;
             }
         }
-        throw new IllegalArgumentException("Неверное значение: " + value);
+        throw new IllegalArgumentException("\033[31mIncorrect value: \033[0m" + value);
     }
 }

@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.Scanner;
 
-import static ru.aston.homework.intensive_modul2.Application.userDao;
+import static ru.aston.homework.intensive_modul2.Application.USER_DAO;
 
-public class FindUserByID implements UserChoiceStrategy{
+public class FindUserByID implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(FindUserByID.class);
 
     @Override
@@ -17,9 +17,9 @@ public class FindUserByID implements UserChoiceStrategy{
         Long id = scanner.nextLong();
         scanner.nextLine();
 
-        Optional<User> user = userDao.findById(id);
+        Optional<User> user = USER_DAO.findById(id);
         if (user.isPresent()) {
-            LOGGER.info(""" 
+            LOGGER.info("""
             \s
             User found: \033[32m
             ID: {}

@@ -11,23 +11,24 @@ import ru.aston.homework.intensive_modul2.model.ListAllUsers;
 import ru.aston.homework.intensive_modul2.model.UpdateUser;
 import ru.aston.homework.intensive_modul2.model.UserChoice;
 import ru.aston.homework.intensive_modul2.model.UserChoiceStrategy;
+import ru.aston.homework.intensive_modul2.util.HibernateUtil;
 
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Application {
-    private static final Map<UserChoice, UserChoiceStrategy> choiceToStrategy = new EnumMap<>(UserChoice.class);
-    public static final UserDao userDao = new UserDaoImpl();
-    public static final Scanner scanner = new Scanner(System.in);
+    private static final Map<UserChoice, UserChoiceStrategy> CHOICE_TO_STRATEGY = new EnumMap<>(UserChoice.class);
+    public static final UserDao USER_DAO = new UserDaoImpl();
+    public static final Scanner SCANNER = new Scanner(System.in);
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     static {
-        choiceToStrategy.put(UserChoice.CREATE_USER, new CreateUser());
-        choiceToStrategy.put(UserChoice.GET_USER_BY_ID, new FindUserByID());
-        choiceToStrategy.put(UserChoice.UPDATE_USER, new UpdateUser());
-        choiceToStrategy.put(UserChoice.DELETE_USER, new DeleteUser());
-        choiceToStrategy.put(UserChoice.LIST_ALL_USERS, new ListAllUsers());
+        CHOICE_TO_STRATEGY.put(UserChoice.CREATE_USER, new CreateUser());
+        CHOICE_TO_STRATEGY.put(UserChoice.GET_USER_BY_ID, new FindUserByID());
+        CHOICE_TO_STRATEGY.put(UserChoice.UPDATE_USER, new UpdateUser());
+        CHOICE_TO_STRATEGY.put(UserChoice.DELETE_USER, new DeleteUser());
+        CHOICE_TO_STRATEGY.put(UserChoice.LIST_ALL_USERS, new ListAllUsers());
     }
 
 
@@ -36,42 +37,43 @@ public class Application {
 
         while (running) {
             printMenu();
-            String input = scanner.nextLine();
+            String input = SCANNER.nextLine();
             UserChoice choice;
 
             try {
                 int inputValue = Integer.parseInt(input);
 
                 if (inputValue < 0 || inputValue > 5) {
-                    throw new IllegalArgumentException("Значение должно быть от 0 до 5");
+                    throw new IllegalArgumentException("\033[31mThe value must be between 0 and 5\033[0m");
                 }
 
                 choice = UserChoice.fromValue(inputValue);
 
                 if (choice == UserChoice.EXIT) {
                     running = false;
-                    LOGGER.info("Программа завершена. До свидания!");
+                    LOGGER.info("\033[32mThe program is complete. Goodbye!\033[0m");
                     break;
                 }
 
 
-                UserChoiceStrategy strategy = choiceToStrategy.get(choice);
-                strategy.invoke(scanner);
+                UserChoiceStrategy strategy = CHOICE_TO_STRATEGY.get(choice);
+                strategy.invoke(SCANNER);
 
             } catch (NumberFormatException e) {
-                LOGGER.info("Неверный формат ввода. Попробуйте еще раз.");
+                LOGGER.info("\033[31mInvalid input format. Please try again.\033[0m");
             } catch (IllegalArgumentException e) {
-                LOGGER.info("Ошибка: {}", e.getMessage());
+                LOGGER.info("\033[31mError: {}\033[0m", e.getMessage());
             } catch (Exception e) {
-                LOGGER.error("Произошла ошибка: {}", e.getMessage());
+                LOGGER.error("\033[31mAn error has occurred: {}\033[0m", e.getMessage());
             }
         }
-        scanner.close();
+        SCANNER.close();
+        HibernateUtil.shutdown();
     }
 
     private static void printMenu() {
         LOGGER.info("""
-           
+
            User Management System:
             1. Create User
             2. Find User by ID

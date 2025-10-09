@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "users")
@@ -30,18 +31,6 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public Long getId() {
         return id;
     }
@@ -50,16 +39,28 @@ public class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public int getAge() {
         return age;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getCreatedAt() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return createdAt.format(formatter);
     }
 }
-

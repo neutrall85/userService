@@ -5,28 +5,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
 
-import static ru.aston.homework.intensive_modul2.Application.userDao;
+import static ru.aston.homework.intensive_modul2.Application.USER_DAO;
 
-public class DeleteUser implements UserChoiceStrategy{
+public class DeleteUser implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteUser.class);
 
     @Override
     public void invoke(Scanner scanner) {
-        LOGGER.info("Enter user ID to delete: ");
+        LOGGER.info("\033[33mEnter user ID to delete: \033[0m");
 
         try {
             Long id = scanner.nextLong();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine();
 
-            if (userDao.exists(id)) {
-                userDao.delete(id);
-                LOGGER.info("User with ID {} deleted successfully!", id);
+            if (USER_DAO.exists(id)) {
+                USER_DAO.delete(id);
+                LOGGER.info("\033[31mUser with ID {} deleted successfully!\033[0m", id);
             } else {
-                LOGGER.warn("User with ID {} not found!", id);
+                LOGGER.warn("\033[31mUser with ID {} not found!\033[0m", id);
             }
 
         } catch (Exception e) {
-            LOGGER.error("Error during user deletion: ", e);
+            LOGGER.error("\033[31mError during user deletion: \033[0m", e);
         }
     }
 }

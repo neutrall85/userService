@@ -5,41 +5,41 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
 
-import static ru.aston.homework.intensive_modul2.Application.userDao;
+import static ru.aston.homework.intensive_modul2.Application.USER_DAO;
 
-public class UpdateUser implements UserChoiceStrategy{
+public class UpdateUser implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateUser.class);
 
     @Override
     public void invoke(Scanner scanner) {
-        LOGGER.info("Enter user ID to update: ");
+        LOGGER.info("\033[33mEnter user ID to update: \033[0m");
         Long id = scanner.nextLong();
         scanner.nextLine();
 
-        User user = userDao.findById(id).orElse(null);
+        User user = USER_DAO.findById(id).orElse(null);
         if (user != null) {
-            LOGGER.info("Enter new name (leave blank to keep current): ");
+            LOGGER.info("\033[33mEnter new name (leave blank to keep current): \033[0m");
             String name = scanner.nextLine();
             if (!name.isEmpty()) {
                 user.setName(name);
             }
 
-            LOGGER.info("Enter new email (leave blank to keep current): ");
+            LOGGER.info("\033[33mEnter new email (leave blank to keep current): \033[0m");
             String email = scanner.nextLine();
             if (!email.isEmpty()) {
                 user.setEmail(email);
             }
 
-            LOGGER.info("Enter new age (leave blank to keep current): ");
+            LOGGER.info("\033[33mEnter new age (leave blank to keep current): \033[0m");
             String ageInput = scanner.nextLine();
             if (!ageInput.isEmpty()) {
                 user.setAge(Integer.parseInt(ageInput));
             }
 
-            userDao.update(user);
-            LOGGER.info("User updated successfully!");
+            USER_DAO.update(user);
+            LOGGER.info("\033[32mUser updated successfully!\033[0m");
         } else {
-            LOGGER.info("User not found!");
+            LOGGER.info("\033[31mUser not found!\033[0m");
         }
     }
 }
