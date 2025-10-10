@@ -1,5 +1,6 @@
 package ru.aston.homework.intensive_modul2.util;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ public final class HibernateUtil {
     private HibernateUtil() { }
 
     private static final SessionFactory SESSION_FACTORY;
+    private static final ThreadLocal<Session> SESSION = new ThreadLocal<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(HibernateUtil.class);
 
     static {
@@ -36,12 +38,25 @@ public final class HibernateUtil {
         }
     }
 
-    public static SessionFactory getSessionFactory() {
-        return SESSION_FACTORY;
+    public static Session getSession() {
+        Session session = SESSION.get();
+        if (session == null || !session.isOpen()) {
+            session = SESSION_FACTORY.openSession();
+            SESSION.set(session);
+        }
+        return session;
+    }
+
+    public static void closeSession() {
+        Session session = SESSION.get();
+        if (session != null && session.isOpen()) {
+            session.close();
+            SESSION.remove();
+        }
     }
 
     public static void shutdown() {
-        getSessionFactory().close();
+        SESSION_FACTORY.close();
     }
 }
 

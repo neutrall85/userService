@@ -13,7 +13,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Long create(User user) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        Session session;
+        try {
+            session = HibernateUtil.getSession();
             transaction = session.beginTransaction();
             session.persist(user);
             transaction.commit();
@@ -23,31 +25,43 @@ public class UserDaoImpl implements UserDao {
                 transaction.rollback();
             }
             throw new IllegalArgumentException("Error creating user", e);
+        } finally {
+            HibernateUtil.closeSession();
         }
     }
 
     @Override
     public Optional<User> findById(Long id) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        Session session;
+        try {
+            session = HibernateUtil.getSession();
             return Optional.ofNullable(session.get(User.class, id));
         } catch (Exception e) {
             throw new IllegalArgumentException("Error finding user by id: " + id, e);
+        } finally {
+            HibernateUtil.closeSession();
         }
     }
 
     @Override
     public List<User> findAll() {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        Session session;
+        try {
+            session = HibernateUtil.getSession();
             return session.createQuery("from User", User.class).list();
         } catch (Exception e) {
             throw new IllegalArgumentException("Error retrieving all users", e);
+        } finally {
+            HibernateUtil.closeSession();
         }
     }
 
     @Override
     public void update(User user) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        Session session;
+        try {
+            session = HibernateUtil.getSession();
             transaction = session.beginTransaction();
             session.merge(user);
             transaction.commit();
@@ -56,6 +70,8 @@ public class UserDaoImpl implements UserDao {
                 transaction.rollback();
             }
             throw new IllegalArgumentException("Error updating user", e);
+        } finally {
+            HibernateUtil.closeSession();
         }
     }
 
@@ -67,7 +83,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void delete(Long id) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        Session session;
+        try {
+            session = HibernateUtil.getSession();
             transaction = session.beginTransaction();
             User user = session.get(User.class, id);
             if (user != null) {
@@ -79,6 +97,8 @@ public class UserDaoImpl implements UserDao {
                 transaction.rollback();
             }
             throw new IllegalArgumentException("Error deleting user with id: " + id, e);
+        } finally {
+            HibernateUtil.closeSession();
         }
     }
 }

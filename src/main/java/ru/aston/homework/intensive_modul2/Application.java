@@ -51,7 +51,7 @@ public class Application {
 
                 if (userChoice == UserChoice.EXIT) {
                     running = false;
-                    LOGGER.info("\033[32mПрограмма завершена. До свидания!\033[0m");
+                    LOGGER.info("\033[32mThe program is over. Goodbye!\033[0m");
                     continue;
                 }
 
@@ -59,14 +59,14 @@ public class Application {
                 if (strategy != null) {
                     strategy.invoke(scanner);
                 } else {
-                    LOGGER.warn("\033[31mНеизвестная команда\033[0m");
+                    LOGGER.warn("\033[31mUnknown command\033[0m");
                 }
             } catch (NumberFormatException e) {
-                LOGGER.error("\033[31mОшибка формата ввода. Введите число.\033[0m");
+                LOGGER.error("\033[31mInput error. Please enter a number\033[0m");
             } catch (IllegalArgumentException e) {
-                LOGGER.error("\033[31mОшибка: {}\033[0m", e.getMessage());
+                LOGGER.error("\033[31mError: {}\033[0m", e.getMessage());
             } catch (Exception e) {
-                LOGGER.error("\033[31mКритическая ошибка: {}\033[0m", e.getMessage());
+                LOGGER.error("\033[31mCritical error: {}\033[0m", e.getMessage());
             }
         }
         scanner.close();
