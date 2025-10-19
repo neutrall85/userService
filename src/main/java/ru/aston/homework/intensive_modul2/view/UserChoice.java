@@ -8,18 +8,16 @@ public enum UserChoice {
     LIST_ALL_USERS(5),
     EXIT(0);
 
-    private final int val;
+    private final int value;
 
-    UserChoice(int val) {
-        this.val = val;
+    UserChoice(int value) {
+        this.value = value;
     }
 
     public static UserChoice fromValue(int value) {
-        for (UserChoice choice : UserChoice.values()) {
-            if (choice.val == value) {
-                return choice;
-            }
-        }
-        throw new IllegalArgumentException("\033[31mIncorrect value: \033[0m" + value);
+        return java.util.stream.Stream.of(UserChoice.values())
+                .filter(choice -> choice.value == value)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Incorrect value: " + value));
     }
 }

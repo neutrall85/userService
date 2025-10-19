@@ -5,10 +5,11 @@ import org.slf4j.LoggerFactory;
 import ru.aston.homework.intensive_modul2.entity.User;
 import ru.aston.homework.intensive_modul2.service.UserService;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
-public class ListAllUsers implements UserChoiceStrategy {
+public final class ListAllUsers implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListAllUsers.class);
     private final UserService userService;
 
@@ -18,24 +19,29 @@ public class ListAllUsers implements UserChoiceStrategy {
 
     @Override
     public void invoke(Scanner scanner) {
-        List<User> users = userService.findAll();
-        if (!users.isEmpty()) {
-            LOGGER.info("All users:");
-            for (User user : users) {
-                LOGGER.info("""
-                \s
-                User found: \033[32m
-                ID: {}
-                Name: {}
-                E-mail: {}
-                Age: {}
-                Created at: {}
-                \033[0m""", user.getId(), user.getName(), user.getEmail(),
-                            user.getAge(), user.getCreatedAt());
+        LOGGER.info("Starting to list all users...");
+        try {
+            List<User> users = userService.findAll();
+            if (users == null || users.isEmpty()) {
+                LOGGER.warn("No users found!");
+                return;
             }
-        } else {
-            LOGGER.info("\033[31mNo users found!\033[0m");
+            LOGGER.info("All users:");
+            String userFormat = """
+                    User found:
+                    ID: {}  Name: {}  E-mail: {}  Age: {}  Created at: {}
+                    """;
+            users.stream()
+                    .sorted(Comparator.comparing(User::getId))
+                    .forEach(user -> LOGGER.info(userFormat,
+                            user.getId(),
+                            user.getName(),
+                            user.getEmail(),
+                            user.getAge(),
+                            user.getCreatedAt()));
+        } catch (Exception e) {
+            LOGGER.error("Error while listing users: ", e);
         }
+        LOGGER.info("Finished listing all users.");
     }
 }
-

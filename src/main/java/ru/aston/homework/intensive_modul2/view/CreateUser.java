@@ -4,51 +4,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aston.homework.intensive_modul2.entity.User;
 import ru.aston.homework.intensive_modul2.service.UserService;
-
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
-public class CreateUser implements UserChoiceStrategy {
+public final class CreateUser implements UserChoiceStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateUser.class);
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
     private final UserService userService;
 
     public CreateUser(UserService userService) {
+        if (userService == null) {
+            throw new IllegalArgumentException("UserService must not be null");
+        }
         this.userService = userService;
     }
 
     @Override
     public void invoke(Scanner scanner) {
-        LOGGER.info("\033[33mEnter name: \033[0m");
-        String name = scanner.nextLine();
-
-        String email = null;
-        boolean isValidEmail = false;
-        while (!isValidEmail) {
-            LOGGER.info("\033[33mEnter email: \033[0m");
-            email = scanner.nextLine();
-
-            if (isValidEmail(email)) {
-                isValidEmail = true;
-            } else {
-                LOGGER.warn("\033[31mInvalid email format. Please try again.\033[0m");
-            }
+        if (scanner == null) {
+            LOGGER.error("Scanner must not be null");
+            return;
         }
 
-        LOGGER.info("\033[33mEnter age: \033[0m");
-        int age = scanner.nextInt();
-        scanner.nextLine();
+        LOGGER.info("Starting to create a new user...");
 
         User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setAge(age);
 
-        Long id = userService.create(user);
-        LOGGER.info("\033[32mCreated user with ID: {}\033[0m", id);
-    }
+        try {
+            LOGGER.info("Enter name:");
+            user.setName(InputValidator.validateNameForCreate(scanner));
 
-    private boolean isValidEmail(String email) {
-        return EMAIL_PATTERN.matcher(email).matches();
+            LOGGER.info("Enter email:");
+            user.setEmail(InputValidator.validateEmailForCreate(scanner));
+
+            LOGGER.info("Enter age:");
+            user.setAge(InputValidator.validateAgeForCreate(scanner));
+
+            Long id = userService.create(user);
+            if (id == null || id < 0) {
+                LOGGER.error("Failed to create user");
+            } else {
+                LOGGER.info("Created user with ID: {}", id);
+                LOGGER.info("Name: {}, Email: {}, Age: {}", user.getName(), user.getEmail(), user.getAge());
+            }
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Validation error during user creation: {}", e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error during user creation: ", e);
+        }
     }
 }

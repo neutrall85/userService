@@ -12,36 +12,42 @@ public final class HibernateUtil {
 
     private HibernateUtil() { }
 
-    private static final SessionFactory SESSION_FACTORY;
-    private static final ThreadLocal<Session> SESSION = new ThreadLocal<>();
+    static SessionFactory sessionFactory;
+    static final ThreadLocal<Session> SESSION = new ThreadLocal<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(HibernateUtil.class);
+
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    public static ThreadLocal<Session> getSessionVar() {
+        return SESSION;
+    }
 
     static {
         try {
-            SESSION_FACTORY = buildSessionFactory();
+            sessionFactory = buildSessionFactory();
         } catch (Exception ex) {
-            throw new IllegalArgumentException("\033[31mInitialization failed\033[0m", ex);
+            throw new IllegalArgumentException("Initialization failed", ex);
         }
     }
 
-    private static SessionFactory buildSessionFactory() {
+    public static SessionFactory buildSessionFactory() {
         try {
             return new Configuration()
                     .addAnnotatedClass(User.class)
                     .configure()
                     .buildSessionFactory();
-        } catch (Exception ex) {
-            if (LOGGER != null) {
-                LOGGER.error("\033[31mInitial SessionFactory creation failed: {}\033[0m", ex.getMessage());
-            }
-            throw new ExceptionInInitializerError(ex);
+        } catch (Exception e) {
+            LOGGER.error("Initial SessionFactory creation failed: {}", e.getMessage());
+            throw new ExceptionInInitializerError(e);
         }
     }
 
     public static Session getSession() {
         Session session = SESSION.get();
         if (session == null || !session.isOpen()) {
-            session = SESSION_FACTORY.openSession();
+            session = sessionFactory.openSession();
             SESSION.set(session);
         }
         return session;
@@ -54,10 +60,4 @@ public final class HibernateUtil {
             SESSION.remove();
         }
     }
-
-    public static void shutdown() {
-        SESSION_FACTORY.close();
-    }
 }
-
-

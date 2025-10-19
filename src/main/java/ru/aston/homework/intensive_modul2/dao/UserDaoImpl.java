@@ -4,7 +4,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import ru.aston.homework.intensive_modul2.entity.User;
 import ru.aston.homework.intensive_modul2.util.HibernateUtil;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +20,7 @@ public class UserDaoImpl implements UserDao {
             transaction.commit();
             return user.getId();
         } catch (Exception e) {
-            if (transaction != null) {
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new IllegalArgumentException("Error creating user", e);
@@ -32,12 +31,15 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> findById(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("User ID cannot be null or less than or equal to 0");
+        }
         Session session;
         try {
             session = HibernateUtil.getSession();
             return Optional.ofNullable(session.get(User.class, id));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error finding user by id: " + id, e);
+            throw new IllegalArgumentException("Error searching for user by ID: " + id, e);
         } finally {
             HibernateUtil.closeSession();
         }
@@ -63,6 +65,10 @@ public class UserDaoImpl implements UserDao {
         try {
             session = HibernateUtil.getSession();
             transaction = session.beginTransaction();
+            User existingUser = session.find(User.class, user.getId());
+            if (existingUser == null) {
+                throw new IllegalArgumentException("User with ID " + user.getId() + " didn't found");
+            }
             session.merge(user);
             transaction.commit();
         } catch (Exception e) {
@@ -77,7 +83,16 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean exists(Long id) {
-        return findById(id).isPresent();
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+        Session session;
+        try {
+            session = HibernateUtil.getSession();
+            return session.get(User.class, id) != null;
+        } finally {
+            HibernateUtil.closeSession();
+        }
     }
 
     @Override
@@ -88,9 +103,10 @@ public class UserDaoImpl implements UserDao {
             session = HibernateUtil.getSession();
             transaction = session.beginTransaction();
             User user = session.get(User.class, id);
-            if (user != null) {
-                session.remove(user);
+            if (user == null) {
+                throw new IllegalArgumentException("User with ID " + id + " didn't find");
             }
+            session.remove(user);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) {

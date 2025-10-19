@@ -32,3 +32,5 @@ build/
 ### Mac OS ###
 .DS_Store
 /demo1
+/target/site/
+/target/site/
