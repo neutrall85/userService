@@ -37,7 +37,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_ShouldReturnId() {
+    void testCreateUserShouldReturnId() {
         when(userDao.create(any(User.class))).thenReturn(1L);
 
         Long result = userService.create(testUser);
@@ -48,7 +48,7 @@ class UserServiceTest {
     }
 
     @Test
-    void findById_ExistingUser_ShouldReturnUser() {
+    void testFindById_ExistingUser_ShouldReturnUser() {
         when(userDao.findById(1L)).thenReturn(Optional.of(testUser));
 
         Optional<User> result = userService.findById(1L);
@@ -60,7 +60,7 @@ class UserServiceTest {
     }
 
     @Test
-    void findById_NonExistingUser_ShouldReturnEmpty() {
+    void TestFindById_NonExistingUser_ShouldReturnEmpty() {
         when(userDao.findById(999L)).thenReturn(Optional.empty());
 
         Optional<User> result = userService.findById(999L);
@@ -71,7 +71,7 @@ class UserServiceTest {
     }
 
     @Test
-    void findAll_ShouldReturnUserList() {
+    void TestFindAll_ShouldReturnUserList() {
         when(userDao.findAll()).thenReturn(List.of(testUser));
 
         List<User> result = userService.findAll();
@@ -83,7 +83,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateUser_ExistingUser_ShouldCallDao() {
+    void testUpdateUser_ExistingUser_ShouldCallDao() {
         userService.update(testUser);
 
         verify(userDao).update(testUser);
@@ -91,7 +91,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUser_ExistingUser_ShouldCallDao() {
+    void testDeleteUser_ExistingUser_ShouldCallDao() {
         userService.delete(1L);
 
         verify(userDao).delete(1L);
@@ -99,7 +99,7 @@ class UserServiceTest {
     }
 
     @Test
-    void exists_ShouldReturnCorrectStatus() {
+    void testExists_ShouldReturnCorrectStatus() {
         when(userDao.findById(1L)).thenReturn(Optional.of(testUser));
 
         assertTrue(userService.exists(1L));

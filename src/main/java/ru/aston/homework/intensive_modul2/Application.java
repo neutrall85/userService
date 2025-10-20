@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Application {
-    static Logger logger = LoggerFactory.getLogger(Application.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
     private final UserService userService;
-    private final Map<UserChoice, UserChoiceStrategy> choiceToStrategy;
+    final Map<UserChoice, UserChoiceStrategy> choiceToStrategy;
     int wrongAttempts = 0;
 
     public Application(UserService userService) {
@@ -44,7 +44,7 @@ public class Application {
                 UserChoice userChoice = UserChoice.fromValue(choice);
                 if (userChoice == UserChoice.EXIT) {
                     running = false;
-                    logger.info("The program is over. Goodbye!");
+                    LOGGER.info("The program is over. Goodbye!");
                     continue;
                 }
                 UserChoiceStrategy strategy = choiceToStrategy.get(userChoice);
@@ -59,11 +59,11 @@ public class Application {
             } catch (IllegalArgumentException e) {
                 handleWrongAttempt(e.getMessage());
             } catch (Exception e) {
-                logger.error("Critical error occurred: {}", e.getMessage());
+                LOGGER.error("Critical error occurred: {}", e.getMessage());
             }
 
             if (wrongAttempts >= 3) {
-                logger.error("Too many incorrect attempts. Exiting the program.");
+                LOGGER.error("Too many incorrect attempts. Exiting the program.");
                 System.exit(1);
             }
         }
@@ -71,7 +71,7 @@ public class Application {
 
     void handleWrongAttempt(Object message) {
         wrongAttempts++;
-        logger.warn("Invalid choice: {}. Attempts left: {}", message, 3 - wrongAttempts);
+        LOGGER.warn("Invalid choice: {}. Attempts left: {}", message, 3 - wrongAttempts);
     }
 
     int getUserChoice(Scanner scanner) {
@@ -91,7 +91,7 @@ public class Application {
     }
 
     void printMenu() {
-        logger.info("""
+        LOGGER.info("""
                 User Management System:
                 1. Create User
                 2. Find User by ID

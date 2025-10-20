@@ -5,10 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserChoiceTest {
 
-
     @Test
-    void testFromValue_validValues() {
-
+    void testFromValueValidValues() {
         assertEquals(UserChoice.CREATE_USER, UserChoice.fromValue(1));
         assertEquals(UserChoice.GET_USER_BY_ID, UserChoice.fromValue(2));
         assertEquals(UserChoice.UPDATE_USER, UserChoice.fromValue(3));
@@ -17,41 +15,32 @@ class UserChoiceTest {
         assertEquals(UserChoice.EXIT, UserChoice.fromValue(0));
     }
 
-
     @Test
-    void testFromValue_negativeValue() {
+    void testFromValueNegativeValue() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> UserChoice.fromValue(-1));
         assertTrue(exception.getMessage().contains("Incorrect value"));
     }
 
-
     @Test
-    void testFromValue_tooBigValue() {
+    void testFromValueTooBigValue() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> UserChoice.fromValue(10));
         assertTrue(exception.getMessage().contains("Incorrect value"));
     }
 
-
     @Test
-    void testFromValue_minValue() {
+    void testFromValueMinValue() {
         assertEquals(UserChoice.EXIT, UserChoice.fromValue(0));
     }
 
-
     @Test
-    void testFromValue_maxValue() {
+    void testFromValueMaxValue() {
         assertEquals(UserChoice.LIST_ALL_USERS, UserChoice.fromValue(5));
     }
-
 
     @Test
     void testValues() {
         UserChoice[] values = UserChoice.values();
-
-
         assertEquals(6, values.length);
-
-
         assertEquals(UserChoice.CREATE_USER, values[0]);
         assertEquals(UserChoice.GET_USER_BY_ID, values[1]);
         assertEquals(UserChoice.UPDATE_USER, values[2]);

@@ -85,4 +85,5 @@ public final class UpdateUser implements UserChoiceStrategy {
             LOGGER.warn("Failed to verify updated user!");
         }
     }
+
 }

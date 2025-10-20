@@ -33,7 +33,7 @@ class FindUserByIDTest {
     }
 
     @Test
-    void testInvoke_UserFound() {
+    void testInvokeUserFound() {
         Long testId = 1L;
         User testUser = mock(User.class);
 
@@ -54,7 +54,7 @@ class FindUserByIDTest {
     }
 
     @Test
-    void testInvoke_UserNotFound() {
+    void testInvokeUserNotFound() {
         Long testId = 2L;
 
         when(scanner.nextLong()).thenReturn(testId);
@@ -68,7 +68,7 @@ class FindUserByIDTest {
     }
 
     @Test
-    void testInvoke_InvalidInput() {
+    void testInvokeInvalidInput() {
         when(scanner.nextLong()).thenThrow(NumberFormatException.class);
 
         try {
@@ -82,7 +82,7 @@ class FindUserByIDTest {
     }
 
     @Test
-    void testInvoke_EmptyInput() {
+    void testInvokeEmptyInput() {
         when(scanner.nextLong()).thenReturn(0L);
         when(scanner.nextLine()).thenReturn("");
         when(userService.findById(0L)).thenReturn(Optional.empty());

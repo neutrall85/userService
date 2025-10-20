@@ -9,6 +9,9 @@ import org.mockito.MockitoAnnotations;
 import ru.aston.homework.intensive_modul2.entity.User;
 import ru.aston.homework.intensive_modul2.service.UserService;
 import java.util.Scanner;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -124,4 +127,66 @@ class CreateUserTest {
         createUser.invoke(scanner);
         verify(userService, times(2)).create(any(User.class));
     }
+
+    @Test
+    void testNullScanner() {
+        assertDoesNotThrow(() -> createUser.invoke(null));
+        verify(userService, never()).create(any(User.class));
+    }
+
+    @Test
+    void testNullUserService() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new CreateUser(null)
+        );
+    }
+
+    @Test
+    void testValidationException() {
+        when(scanner.nextLine()).thenReturn("John Doe");
+        when(InputValidator.validateNameForCreate(scanner))
+                .thenThrow(new IllegalArgumentException("Invalid name format"));
+        createUser.invoke(scanner);
+        verify(userService, never()).create(any(User.class));
+    }
+
+    @Test
+    void testUnexpectedException() {
+        when(scanner.nextLine()).thenReturn("John Doe")
+                .thenReturn("john@example.com")
+                .thenReturn("30");
+        when(userService.create(any(User.class)))
+                .thenThrow(new RuntimeException("Database error"));
+        createUser.invoke(scanner);
+        verify(userService, times(1)).create(any(User.class));
+    }
+
+    @Test
+    void testNegativeAge() {
+        when(scanner.nextLine()).thenReturn("John Doe")
+                .thenReturn("john@example.com")
+                .thenReturn("-5");
+        createUser.invoke(scanner);
+        verify(userService, never()).create(any(User.class));
+    }
+
+    @Test
+    void testAgeOutOfRange() {
+        when(scanner.nextLine()).thenReturn("John Doe")
+                .thenReturn("john@example.com")
+                .thenReturn("150");
+
+        createUser.invoke(scanner);
+        verify(userService, never()).create(any(User.class));
+    }
+
+    @Test
+    void testEmptyInput() {
+        when(scanner.nextLine()).thenReturn("")
+                .thenReturn("")
+                .thenReturn("");
+        createUser.invoke(scanner);
+        verify(userService, never()).create(any(User.class));
+    }
+
 }
