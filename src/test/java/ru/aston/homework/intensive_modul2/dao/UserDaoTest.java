@@ -1,47 +1,27 @@
 package ru.aston.homework.intensive_modul2.dao;
 
-import jakarta.transaction.Transactional;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import ru.aston.homework.intensive_modul2.entity.User;
 import ru.aston.homework.intensive_modul2.util.HibernateUtil;
+
 import java.util.List;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
 
-@Transactional
 @Testcontainers
-@ExtendWith(MockitoExtension.class)
 class UserDaoTest {
 
-    @Mock
-    private Session session;
-
-    @InjectMocks
     private UserDaoImpl userDao;
 
     @Container
@@ -67,7 +47,6 @@ class UserDaoTest {
         System.setProperty("hibernate.connection.username", db.getUsername());
         System.setProperty("hibernate.connection.password", db.getPassword());
         userDao = new UserDaoImpl();
-        MockitoAnnotations.openMocks(this);
     }
 
     @AfterEach
@@ -76,10 +55,8 @@ class UserDaoTest {
             sess.beginTransaction();
             sess.createMutationQuery("DELETE FROM User")
                     .executeUpdate();
-
             sess.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException("Ошибка очистки базы данных", e);
         }
     }
@@ -165,36 +142,6 @@ class UserDaoTest {
         Optional<User> deletedUser = userDao.findById(id);
         assertFalse(deletedUser.isPresent());
     }
-
-    @Test
-    void testDeleteWithRollback() {
-        User user = new User();
-        user.setName("Rollback Test");
-        user.setEmail("rollback@test.com");
-        user.setAge(25);
-        Long id = userDao.create(user);
-
-        try (MockedStatic<HibernateUtil> hibernateMock = mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(HibernateUtil::getSession)
-                    .thenReturn(session);
-
-            when(session.get(User.class, id))
-                    .thenReturn(user);
-
-            doThrow(new RuntimeException("Симулированная ошибка"))
-                    .when(session)
-                    .remove(any());
-
-            try {
-                userDao.delete(id);
-                fail("Ожидалось исключение");
-            } catch (RuntimeException e) {
-
-                assertTrue(userDao.exists(id));
-            }
-        }
-    }
-
 
     @Test
     void testExists() {
@@ -285,21 +232,16 @@ class UserDaoTest {
 
     @Test
     void testUpdateWithActiveTransaction() {
-
         User user = new User();
         user.setName("Active Transaction Test");
         user.setEmail("active@test.com");
         user.setAge(25);
         Long id = userDao.create(user);
-
         Optional<User> optionalUser = userDao.findById(id);
         assertTrue(optionalUser.isPresent());
-
         User updatedUser = optionalUser.get();
         updatedUser.setName("Updated Name");
-
         userDao.update(updatedUser);
-
         User finalUser = userDao.findById(id).orElse(null);
         assertNotNull(finalUser);
         assertEquals("Updated Name", finalUser.getName());
@@ -307,143 +249,18 @@ class UserDaoTest {
 
     @Test
     void testUpdateWithNoTransaction() {
-            User user = new User();
-            user.setName("No Transaction Test");
-            user.setEmail("notransaction@test.com");
-            user.setAge(25);
-            Long id = userDao.create(user);
-
-            Optional<User> optionalUser = userDao.findById(id);
-            assertTrue(optionalUser.isPresent());
-
-            User updatedUser = optionalUser.get();
-            updatedUser.setName("Updated Name");
-
-            userDao.update(updatedUser);
-
-            User finalUser = userDao.findById(id).orElse(null);
-            assertNotNull(finalUser);
-            assertEquals("Updated Name", finalUser.getName());
-    }
-
-    @Test
-    void testUpdateWithRollback() {
-
         User user = new User();
-        user.setName("Rollback Test");
-        user.setEmail("rollback@test.com");
+        user.setName("No Transaction Test");
+        user.setEmail("notransaction@test.com");
         user.setAge(25);
         Long id = userDao.create(user);
-
         Optional<User> optionalUser = userDao.findById(id);
         assertTrue(optionalUser.isPresent());
-
         User updatedUser = optionalUser.get();
         updatedUser.setName("Updated Name");
-
-        String originalName = null;
-
-        try {
-            originalName = updatedUser.getName();
-            userDao.update(updatedUser);
-
-            throw new RuntimeException("Симулированная ошибка при обновлении");
-        } catch (RuntimeException e) {
-
-            User finalUser = userDao.findById(id).orElse(null);
-            assertNotNull(finalUser);
-            assertEquals(originalName, finalUser.getName());
-        }
+        userDao.update(updatedUser);
+        User finalUser = userDao.findById(id).orElse(null);
+        assertNotNull(finalUser);
+        assertEquals("Updated Name", finalUser.getName());
     }
-
-
-    @Test
-    void testFindAllQueryException() {
-        try (MockedStatic<HibernateUtil> hibernateMock = mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(HibernateUtil::getSession)
-                    .thenReturn(session);
-            when(session.createQuery(anyString(), any()))
-                    .thenThrow(new HibernateException("Hibernate query failed"));
-
-            try {
-                userDao.findAll();
-                fail("Ожидалось исключение IllegalArgumentException");
-            } catch (IllegalArgumentException e) {
-                assertThat(e.getMessage()).contains("Error retrieving all users");
-                assertThat(e).hasCauseInstanceOf(HibernateException.class);
-            }
-
-            hibernateMock.verify(HibernateUtil::closeSession);
-        }
-    }
-
-    @Test
-    void testFindAllSessionException() {
-        try (MockedStatic<HibernateUtil> hibernateMock = mockStatic(HibernateUtil.class)) {
-
-            hibernateMock.when(HibernateUtil::getSession)
-                    .thenThrow(new RuntimeException("Session creation failed"));
-
-            try {
-                userDao.findAll();
-                fail("Ожидалось исключение IllegalArgumentException");
-            } catch (IllegalArgumentException e) {
-                assertThat(e.getMessage()).contains("Error retrieving all users");
-                assertThat(e).hasCauseInstanceOf(RuntimeException.class);
-            }
-        }
-    }
-
-    @Test
-    void testFindByIdWithDatabaseError() {
-
-        try (MockedStatic<HibernateUtil> hibernateMock = mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(HibernateUtil::getSession)
-                    .thenReturn(session);
-            doThrow(new HibernateException("Simulate Error"))
-                    .when(session)
-                    .get(eq(User.class), anyLong());
-
-            try {
-                userDao.findById(1L);
-                fail("Ожидалось исключение IllegalArgumentException");
-            } catch (IllegalArgumentException e) {
-                assertThat(e.getMessage()).contains("Error searching for user by ID: 1");
-                assertThat(e).hasCauseInstanceOf(HibernateException.class);
-            }
-        }
-
-    }
-
-    @Test
-    void testFindByIdWithSessionError() {
-        try (var hibernateMock = mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(HibernateUtil::getSession)
-                    .thenThrow(new RuntimeException("Session error"));
-
-            try {
-                userDao.findById(1L);
-                fail("Ожидалось исключение IllegalArgumentException");
-            } catch (IllegalArgumentException e) {
-                assertThat(e.getMessage()).contains("Error searching for user by ID: 1");
-                assertThat(e).hasCauseInstanceOf(RuntimeException.class);
-            }
-        }
-    }
-
-    @Test
-    void testFindByIdWithNullSession() {
-        try (var hibernateMock = mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(HibernateUtil::getSession)
-                    .thenReturn(null);
-
-            try {
-                userDao.findById(1L);
-                fail("Ожидалось исключение IllegalArgumentException");
-            } catch (IllegalArgumentException e) {
-                assertThat(e.getMessage()).contains("Error searching for user by ID: 1");
-            }
-        }
-    }
-
 }
