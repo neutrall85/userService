@@ -1,16 +1,19 @@
 package ru.aston.homework.intensive_modul2.service;
 
-import ru.aston.homework.intensive_modul2.entity.User;
-
+import org.springframework.transaction.annotation.Transactional;
+import ru.aston.homework.intensive_modul2.controller.dto.CreateUserDto;
+import ru.aston.homework.intensive_modul2.controller.dto.UpdateUserDto;
+import ru.aston.homework.intensive_modul2.controller.dto.UserResponseDto;
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
-    Long create(User user);
-    Optional<User> findById(Long id);
-    List<User> findAll();
-    void update(User user);
-    void delete(Long id);
-    boolean exists(Long id);
-}
+    UserResponseDto createUser(CreateUserDto createUserDto);
+    UserResponseDto getUserById(Long id);
+    List<UserResponseDto> getAllUsers();
+    UserResponseDto updateUser(Long id, UpdateUserDto updateUserDto);
+    void deleteUser(Long id);
+    boolean existsById(Long id);
 
+    @Transactional(readOnly = true)
+    boolean existsByEmail(String email);
+}

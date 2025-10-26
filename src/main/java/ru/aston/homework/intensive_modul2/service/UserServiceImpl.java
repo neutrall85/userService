@@ -1,45 +1,176 @@
 package ru.aston.homework.intensive_modul2.service;
 
-import ru.aston.homework.intensive_modul2.dao.UserDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.aston.homework.intensive_modul2.controller.dto.CreateUserDto;
+import ru.aston.homework.intensive_modul2.controller.dto.UpdateUserDto;
+import ru.aston.homework.intensive_modul2.controller.dto.UserResponseDto;
 import ru.aston.homework.intensive_modul2.entity.User;
+import ru.aston.homework.intensive_modul2.exception.EmailAlreadyExistsException;
+import ru.aston.homework.intensive_modul2.exception.UserNotFoundException;
+import ru.aston.homework.intensive_modul2.repository.UserRepository;
+import ru.aston.homework.intensive_modul2.util.ValidationUtil;
 
 import java.util.List;
-import java.util.Optional;
 
+@Service
+@Transactional
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao;
 
-    public UserServiceImpl(UserDao userDao) {
-        this.userDao = userDao;
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public Long create(User user) {
-        return userDao.create(user);
+    @Transactional(readOnly = true)
+    public UserResponseDto getUserById(Long id) {
+        LOGGER.info("Getting user by ID: {}", id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    LOGGER.warn("User not found with ID: {}", id);
+                    return new UserNotFoundException(id);
+                });
+
+        LOGGER.info("Successfully retrieved user: {} (ID: {})", user.getName(), user.getId());
+        return toDto(user);
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        return userDao.findById(id);
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> getAllUsers() {
+        LOGGER.info("Getting all users");
+
+        List<User> users = userRepository.findAll();
+        LOGGER.info("Retrieved {} users from database", users.size());
+
+        return users.stream()
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
-    public List<User> findAll() {
-        return userDao.findAll();
+    public UserResponseDto createUser(CreateUserDto createUserDto) {
+        LOGGER.info("Creating new user: {}", createUserDto.getEmail());
+
+        // Валидация входных данных (включая проверку на null)
+        ValidationUtil.validateCreateUserDto(createUserDto);
+
+        // Дополнительная проверка на null (на всякий случай)
+        if (createUserDto.getAge() == null) {
+            LOGGER.error("Age cannot be null for user creation");
+            throw new IllegalArgumentException("Age cannot be null");
+        }
+
+        // Проверка уникальности email
+        if (userRepository.existsByEmail(createUserDto.getEmail())) {
+            LOGGER.warn("Email already exists: {}", createUserDto.getEmail());
+            throw new EmailAlreadyExistsException(createUserDto.getEmail());
+        }
+
+        User user = new User();
+        user.setName(createUserDto.getName());
+        user.setEmail(createUserDto.getEmail());
+        user.setAge(createUserDto.getAge());
+
+        try {
+            User savedUser = userRepository.save(user);
+            LOGGER.info("Successfully created user: {} (ID: {})", savedUser.getName(), savedUser.getId());
+            return toDto(savedUser);
+        } catch (DataIntegrityViolationException e) {
+            LOGGER.error("Data integrity violation while creating user: {}", e.getMessage());
+            throw new EmailAlreadyExistsException(createUserDto.getEmail());
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error while creating user: {}", e.getMessage());
+            throw new RuntimeException("Failed to create user", e);
+        }
     }
 
     @Override
-    public void update(User user) {
-        userDao.update(user);
+    public UserResponseDto updateUser(Long id, UpdateUserDto updateUserDto) {
+        LOGGER.info("Updating user with ID: {}", id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    LOGGER.warn("User not found with ID: {}", id);
+                    return new UserNotFoundException(id);
+                });
+
+        // Валидация и обновление полей
+        ValidationUtil.validateUpdateUserDto(updateUserDto);
+
+        if (updateUserDto.getName() != null) {
+            user.setName(updateUserDto.getName());
+            LOGGER.debug("Updated name for user ID: {}", id);
+        }
+
+        if (updateUserDto.getEmail() != null) {
+            // Проверка уникальности email (исключая текущего пользователя)
+            if (userRepository.existsByEmailAndIdNot(updateUserDto.getEmail(), id)) {
+                LOGGER.warn("Email already exists for update: {}", updateUserDto.getEmail());
+                throw new EmailAlreadyExistsException(updateUserDto.getEmail());
+            }
+            user.setEmail(updateUserDto.getEmail());
+            LOGGER.debug("Updated email for user ID: {}", id);
+        }
+
+        if (updateUserDto.getAge() != null) {
+            user.setAge(updateUserDto.getAge());
+            LOGGER.debug("Updated age for user ID: {}", id);
+        }
+
+        try {
+            User updatedUser = userRepository.save(user);
+            LOGGER.info("Successfully updated user: {} (ID: {})", updatedUser.getName(), updatedUser.getId());
+            return toDto(updatedUser);
+        } catch (DataIntegrityViolationException e) {
+            LOGGER.error("Data integrity violation while updating user: {}", e.getMessage());
+            throw new EmailAlreadyExistsException(updateUserDto.getEmail());
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error while updating user: {}", e.getMessage());
+            throw new RuntimeException("Failed to update user", e);
+        }
     }
 
     @Override
-    public void delete(Long id) {
-        userDao.delete(id);
+    public void deleteUser(Long id) {
+        LOGGER.info("Deleting user with ID: {}", id);
+
+        if (!userRepository.existsById(id)) {
+            LOGGER.warn("Attempt to delete non-existent user with ID: {}", id);
+            throw new UserNotFoundException(id);
+        }
+
+        userRepository.deleteById(id);
+        LOGGER.info("Successfully deleted user with ID: {}", id);
     }
 
     @Override
-    public boolean exists(Long id) {
-        return findById(id).isPresent();
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        return userRepository.existsById(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    private UserResponseDto toDto(User user) {
+        UserResponseDto dto = new UserResponseDto();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setAge(user.getAge());
+        dto.setCreatedAt(user.getCreatedAt());
+        return dto;
     }
 }
