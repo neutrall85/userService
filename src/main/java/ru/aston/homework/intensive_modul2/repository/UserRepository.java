@@ -20,3 +20,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @NonNull
     Optional<User> findById(@NonNull Long id);
 }
+

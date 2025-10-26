@@ -5,3 +5,4 @@ public class UserNotFoundException extends RuntimeException {
         super("User with ID " + id + " not found");
     }
 }
+

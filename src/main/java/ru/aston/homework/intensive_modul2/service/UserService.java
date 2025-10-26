@@ -17,3 +17,4 @@ public interface UserService {
     @Transactional(readOnly = true)
     boolean existsByEmail(String email);
 }
+
