@@ -9,7 +9,6 @@ public class Application {
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(Application.class);
 
-        // Добавляем кастомный баннер
         application.setBanner((environment, sourceClass, out) -> {
             out.println("╔════════════════════════════════════════════════════════════════╗");
             out.println("║                                                                ║");

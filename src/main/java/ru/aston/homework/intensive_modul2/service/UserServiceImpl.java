@@ -60,16 +60,13 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto createUser(CreateUserDto createUserDto) {
         LOGGER.info("Creating new user: {}", createUserDto.getEmail());
 
-        // Валидация входных данных (включая проверку на null)
         ValidationUtil.validateCreateUserDto(createUserDto);
 
-        // Дополнительная проверка на null (на всякий случай)
         if (createUserDto.getAge() == null) {
             LOGGER.error("Age cannot be null for user creation");
             throw new IllegalArgumentException("Age cannot be null");
         }
 
-        // Проверка уникальности email
         if (userRepository.existsByEmail(createUserDto.getEmail())) {
             LOGGER.warn("Email already exists: {}", createUserDto.getEmail());
             throw new EmailAlreadyExistsException(createUserDto.getEmail());
@@ -103,7 +100,6 @@ public class UserServiceImpl implements UserService {
                     return new UserNotFoundException(id);
                 });
 
-        // Валидация и обновление полей
         ValidationUtil.validateUpdateUserDto(updateUserDto);
 
         if (updateUserDto.getName() != null) {
@@ -112,7 +108,6 @@ public class UserServiceImpl implements UserService {
         }
 
         if (updateUserDto.getEmail() != null) {
-            // Проверка уникальности email (исключая текущего пользователя)
             if (userRepository.existsByEmailAndIdNot(updateUserDto.getEmail(), id)) {
                 LOGGER.warn("Email already exists for update: {}", updateUserDto.getEmail());
                 throw new EmailAlreadyExistsException(updateUserDto.getEmail());

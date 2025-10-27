@@ -34,7 +34,6 @@ public class CreateUserDto {
         this.age = age;
     }
 
-    // Геттеры и сеттеры
     public String getName() {
         return name;
     }

@@ -43,7 +43,6 @@ public class User {
         createdAt = LocalDateTime.now();
     }
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }

@@ -29,7 +29,6 @@ public class UpdateUserDto {
         this.age = age;
     }
 
-    // Геттеры и сеттеры
     public String getName() {
         return name;
     }

@@ -1,4 +1,4 @@
-package ru.aston.homework.intensive_modul2.dto;
+package ru.aston.homework.intensive_modul2.controller.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;

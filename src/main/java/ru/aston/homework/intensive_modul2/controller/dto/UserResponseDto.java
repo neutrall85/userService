@@ -21,7 +21,6 @@ public class UserResponseDto {
         this.createdAt = createdAt;
     }
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }
@@ -62,7 +61,6 @@ public class UserResponseDto {
         this.createdAt = createdAt;
     }
 
-    // Красивый toString для красивого вывода
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

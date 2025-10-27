@@ -66,7 +66,6 @@ public class GlobalExceptionHandler {
                 userMessage
         );
 
-        // Добавляем детали для разработчиков (только в development)
         errorResponse.put("detail", "Check that all fields have correct data types");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
@@ -76,7 +75,6 @@ public class GlobalExceptionHandler {
         String message = ex.getMessage();
         String userMessage = "Invalid JSON format";
 
-        // Определяем конкретную причину ошибки
         if (message != null) {
             if (message.contains("age")) {
                 userMessage = "Age must be a valid number";
