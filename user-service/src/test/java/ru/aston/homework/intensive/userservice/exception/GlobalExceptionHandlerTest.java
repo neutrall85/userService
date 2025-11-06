@@ -50,7 +50,6 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void handleHttpMessageNotReadable_WithAgeError_ShouldReturnAgeSpecificMessage() {
- 
         HttpMessageNotReadableException exception = mock(HttpMessageNotReadableException.class);
         when(exception.getMessage()).thenReturn("JSON parse error: Cannot deserialize value of type `int` from String \"abc\": not a valid Integer value for age");
         ResponseEntity<Map<String, Object>> response = exceptionHandler.handleHttpMessageNotReadable(exception);

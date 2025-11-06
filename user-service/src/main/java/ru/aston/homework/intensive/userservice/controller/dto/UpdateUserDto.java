@@ -1,21 +1,26 @@
 package ru.aston.homework.intensive.userservice.controller.dto;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "Data for updating an existing user")
 public class UpdateUserDto {
 
+    @Schema(description = "User's full name", example = "Leo Smirnoff")
     @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     @Pattern(regexp = "^[а-яА-Яa-zA-Z\\s-]*$", message = "Name can only contain letters, spaces and hyphens")
     private String name;
 
+    @Schema(description = "User's email address", example = "leo@mail.ru")
     @Email(message = "Email should be valid")
     private String email;
 
+    @Schema(description = "User's age", example = "40")
     @Min(value = 1, message = "Age must be at least 1")
     @Max(value = 120, message = "Age cannot exceed 120")
     private Integer age;

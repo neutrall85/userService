@@ -1,13 +1,26 @@
 package ru.aston.homework.intensive.userservice.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Schema(description = "User response data")
 public class UserResponseDto {
+
+    @Schema(description = "User ID", example = "1")
     private Long id;
+
+    @Schema(description = "User's full name", example = "Leo Smirnoff")
     private String name;
+
+    @Schema(description = "User's email address", example = "leo@mail.ru")
     private String email;
+
+    @Schema(description = "User's age", example = "40")
     private Integer age;
+
+    @Schema(description = "User creation timestamp", example = "2023-12-01T10:00:00")
     private LocalDateTime createdAt;
 
     public UserResponseDto() {
@@ -66,14 +79,14 @@ public class UserResponseDto {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = createdAt != null ? createdAt.format(formatter) : "N/A";
 
-        return  "┌────────────────────────────────────────────────────────────┐\n"
-              + "│                       👤 USER PROFILE                     │\n"
-              + "├────────────────────────────────────────────────────────────┤\n"
-              + "│  ID:          " + String.format("%-40s", id) + "│\n"
-              + "│  Name:        " + String.format("%-40s", name) + "│\n"
-              + "│  Email:       " + String.format("%-40s", email) + "│\n"
+        return  "┌─────────────────────────────────────────────────────────────┐\n"
+              + "│                       👤 USER PROFILE                       │\n"
+              + "├─────────────────────────────────────────────────────────────┤\n"
+              + "│  ID:          " + String.format("%-40s", id) + "            │\n"
+              + "│  Name:        " + String.format("%-40s", name) + "          │\n"
+              + "│  Email:       " + String.format("%-40s", email) + "         │\n"
               + "│  Age:         " + String.format("%-40s", age + " years") + "│\n"
-              + "│  Created:     " + String.format("%-40s", formattedDate) + "│\n"
-              + "└────────────────────────────────────────────────────────────┘";
+              + "│  Created:     " + String.format("%-40s", formattedDate) + " │\n"
+              + "└─────────────────────────────────────────────────────────────┘";
     }
 }

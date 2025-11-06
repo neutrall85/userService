@@ -34,12 +34,12 @@ public class KafkaEventService {
             SendResult<String, Object> result = kafkaTemplate.send(topic, email, event)
                     .get(5, TimeUnit.SECONDS);
 
-            LOGGER.info("✅ SUCCESS: Sent user event to Kafka topic '{}': {} for user: {}, partition: {}, offset: {}",
+            LOGGER.info("SUCCESS: Sent user event to Kafka topic '{}': {} for user: {}, partition: {}, offset: {}",
                     topic, operation, email, result.getRecordMetadata().partition(),
                     result.getRecordMetadata().offset());
 
         } catch (Exception ex) {
-            LOGGER.error("❌ FAILED to send user event to Kafka: {} for user: {}. Error: {}",
+            LOGGER.error("FAILED to send user event to Kafka: {} for user: {}. Error: {}",
                     operation, email, ex.getMessage());
         }
     }

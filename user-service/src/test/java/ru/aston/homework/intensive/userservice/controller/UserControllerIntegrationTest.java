@@ -55,30 +55,28 @@ class UserControllerIntegrationTest {
         User user2 = new User("User 2", "user2@mail.ru", 30);
         user2.setCreatedAt(LocalDateTime.now());
         userRepository.save(user2);
-
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].name").value("Test"))
-                .andExpect(jsonPath("$[1].name").value("User 2"));
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$._embedded.userResponseDtoList.length()").value(2))
+                .andExpect(jsonPath("$._embedded.userResponseDtoList[0].name").value("Test"))
+                .andExpect(jsonPath("$._embedded.userResponseDtoList[1].name").value("User 2"));
     }
 
     @Test
     void testGetAllUsers_EmptyList() throws Exception {
         userRepository.deleteAll();
-
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$._embedded").doesNotExist());
     }
 
     @Test
     void testGetUserById() throws Exception {
         mockMvc.perform(get("/api/users/{id}", testUser.getId()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.id").value(testUser.getId()))
                 .andExpect(jsonPath("$.name").value("Test"))
                 .andExpect(jsonPath("$.email").value("test@mail.ru"))
@@ -98,12 +96,11 @@ class UserControllerIntegrationTest {
         createDto.setName("New User");
         createDto.setEmail("new@mail.ru");
         createDto.setAge(25);
-
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.name").value("New User"))
                 .andExpect(jsonPath("$.email").value("new@mail.ru"))
                 .andExpect(jsonPath("$.age").value(25));
@@ -131,7 +128,6 @@ class UserControllerIntegrationTest {
         createDto.setName("Another User");
         createDto.setEmail("test@mail.ru");
         createDto.setAge(30);
-
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
@@ -144,12 +140,11 @@ class UserControllerIntegrationTest {
         UpdateUserDto updateDto = new UpdateUserDto();
         updateDto.setName("Updated Name");
         updateDto.setAge(26);
-
         mockMvc.perform(put("/api/users/{id}", testUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.name").value("Updated Name"))
                 .andExpect(jsonPath("$.age").value(26));
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -164,7 +159,6 @@ class UserControllerIntegrationTest {
         updateDto.setName("Updated Name");
         updateDto.setEmail("updated@mail.ru");
         updateDto.setAge(26);
-
         mockMvc.perform(put("/api/users/{id}", testUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
@@ -180,7 +174,6 @@ class UserControllerIntegrationTest {
     void testUpdateUser_NotFound() throws Exception {
         UpdateUserDto updateDto = new UpdateUserDto();
         updateDto.setName("Updated Name");
-
         mockMvc.perform(put("/api/users/999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
