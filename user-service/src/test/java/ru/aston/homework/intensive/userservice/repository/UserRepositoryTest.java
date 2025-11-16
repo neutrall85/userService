@@ -47,7 +47,6 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Очищаем базу данных перед каждым тестом
         userRepository.deleteAll();
     }
 

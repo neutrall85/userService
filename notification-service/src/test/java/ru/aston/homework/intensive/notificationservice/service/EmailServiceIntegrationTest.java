@@ -39,7 +39,6 @@ class EmailServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Сбрасываем мок перед каждым тестом
         reset(mailSender);
     }
 
@@ -61,42 +60,28 @@ class EmailServiceIntegrationTest {
 
     @Test
     void sendEmail_ShouldSendEmailSuccessfully() {
-        // When
         emailService.sendEmail("test@mail.ru", "Test Subject", "Test Message");
-
-        // Then
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }
 
     @Test
     void sendEmail_ShouldThrowException_WhenMailSendingFails() {
-        // Given
         doThrow(new MailSendException("SMTP error")).when(mailSender).send(any(SimpleMailMessage.class));
-
-        // When & Then
         assertThrows(RuntimeException.class, () ->
                 emailService.sendEmail("test@mail.ru", "Test Subject", "Test Message")
         );
-
-        // Также проверяем, что отправка действительно была вызвана
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }
 
     @Test
     void sendUserCreationNotification_ShouldSendWelcomeEmail() {
-        // When
         emailService.sendUserCreationNotification("test@mail.ru", 123L);
-
-        // Then
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }
 
     @Test
     void sendUserDeletionNotification_ShouldSendGoodbyeEmail() {
-        // When
         emailService.sendUserDeletionNotification("test@mail.ru", 123L);
-
-        // Then
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }
 }

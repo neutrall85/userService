@@ -3,7 +3,6 @@ package ru.aston.homework.intensive.userservice.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Schema(description = "User response data")
 public class UserResponseDto {
@@ -76,17 +75,9 @@ public class UserResponseDto {
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = createdAt != null ? createdAt.format(formatter) : "N/A";
-
-        return  "┌─────────────────────────────────────────────────────────────┐\n"
-              + "│                       👤 USER PROFILE                       │\n"
-              + "├─────────────────────────────────────────────────────────────┤\n"
-              + "│  ID:          " + String.format("%-40s", id) + "            │\n"
-              + "│  Name:        " + String.format("%-40s", name) + "          │\n"
-              + "│  Email:       " + String.format("%-40s", email) + "         │\n"
-              + "│  Age:         " + String.format("%-40s", age + " years") + "│\n"
-              + "│  Created:     " + String.format("%-40s", formattedDate) + " │\n"
-              + "└─────────────────────────────────────────────────────────────┘";
+        return String.format(
+                "UserResponseDto{id=%d, name='%s', email='%s', age=%d, createdAt=%s}",
+                id, name, email, age, createdAt
+        );
     }
 }

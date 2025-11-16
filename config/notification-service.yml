@@ -1,0 +1,59 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: notification-service
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: testmailkafka999@gmail.com
+    password: vfyx oicy tezz fcny
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000  # ДОБАВИТЬ
+          timeout: 5000            # ДОБАВИТЬ
+          writetimeout: 5000       # ДОБАВИТЬ
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      auto-commit-interval: 1000
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer      # ДОБАВИТЬ
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer # ДОБАВИТЬ
+    properties:
+      spring.json.trusted.packages: "*"
+
+app:
+  kafka:
+    topics:
+      user-created: user-created-topic
+      user-deleted: user-deleted-topic
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-discovery:8761/eureka/
+
+circuitbreaker:
+  configs:
+    default:
+      sliding-window-size: 5        # уменьшите для тестирования
+      failure-rate-threshold: 50
+      wait-duration-in-open-state: 5s  # меньше время для быстрого тестирования
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+  endpoint:
+    health:
+      show-details: always

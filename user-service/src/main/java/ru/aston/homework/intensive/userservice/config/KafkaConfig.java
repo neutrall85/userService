@@ -20,6 +20,12 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
 
+    @Value("${app.kafka.topics.user-created:user-created-topic}")
+    private String userCreatedTopic;
+
+    @Value("${app.kafka.topics.user-deleted:user-deleted-topic}")
+    private String userDeletedTopic;
+
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -37,7 +43,12 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic userEventsTopic() {
-        return new NewTopic("user-events", 1, (short) 1);
+    public NewTopic userCreatedTopic() {
+        return new NewTopic(userCreatedTopic, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic userDeletedTopic() {
+        return new NewTopic(userDeletedTopic, 1, (short) 1);
     }
 }

@@ -58,10 +58,7 @@ class NotificationControllerIntegrationTest {
 
     @Test
     void sendEmail_ShouldReturnSuccess_WhenValidRequest() throws Exception {
-        // Given
         EmailRequest emailRequest = new EmailRequest("test@example.com", "Test Subject", "Test Message");
-
-        // When & Then
         mockMvc.perform(post("/api/notifications/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(emailRequest)))
@@ -71,10 +68,7 @@ class NotificationControllerIntegrationTest {
 
     @Test
     void sendEmail_ShouldReturnBadRequest_WhenInvalidEmail() throws Exception {
-        // Given
         EmailRequest emailRequest = new EmailRequest("invalid-email", "Test Subject", "Test Message");
-
-        // When & Then
         mockMvc.perform(post("/api/notifications/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(emailRequest)))
@@ -84,10 +78,7 @@ class NotificationControllerIntegrationTest {
 
     @Test
     void sendWelcomeEmail_ShouldReturnSuccess() throws Exception {
-        // Given
         EmailRequest emailRequest = new EmailRequest("test@example.com", "Welcome", "Welcome message");
-
-        // When & Then
         mockMvc.perform(post("/api/notifications/welcome")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(emailRequest)))
@@ -97,10 +88,7 @@ class NotificationControllerIntegrationTest {
 
     @Test
     void sendAccountDeletedEmail_ShouldReturnSuccess() throws Exception {
-        // Given
         EmailRequest emailRequest = new EmailRequest("test@example.com", "Account Deleted", "Goodbye message");
-
-        // When & Then
         mockMvc.perform(post("/api/notifications/account-deleted")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(emailRequest)))

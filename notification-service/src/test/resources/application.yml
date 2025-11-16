@@ -1,0 +1,52 @@
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      group-id: test-notification-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: ru.aston.homework.intensive.notificationservice.dto
+            use:
+              type:
+                headers: false
+            value:
+              default:
+                type: ru.aston.homework.intensive.notificationservice.dto.UserEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+app:
+  kafka:
+    topics:
+      user-created: user-created-topic-test
+      user-deleted: user-deleted-topic-test
+    group-id: test-notification-service-group
+
+logging:
+  level:
+    ru:
+      aston:
+        homework:
+          intensive:
+            notificationservice: DEBUG
+    org:
+      springframework:
+        kafka: DEBUG
+      apache:
+        kafka: WARN
